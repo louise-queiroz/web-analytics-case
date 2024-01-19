@@ -1,30 +1,16 @@
 //ler os arquivo json
 const fs = require('fs');
 
-function readJson(filePaths) {
+function readJson(filePath) {
     try {
-      const jsonObjects = filePaths.map((filePath, index) => {
-        try {
-          const data = fs.readFileSync(filePath, 'utf8');
-          const jsonData = JSON.parse(data);
-          // console.log(jsonData);
-          return jsonData;
-        } catch (parseError) {
-          console.error(`Erro no arquivo ${index + 1}:`, parseError);
-          return null;
-        }
-      });
-      return jsonObjects.filter(jsonObj => jsonObj !== null);
+      const data = fs.readFileSync(filePath, 'utf8');
+      const jsonData = JSON.parse(data);
+      return jsonData;
     } catch (readError) {
-      console.error('Erro ao ler os arquivos JSON:', readError);
-      return [];
+      console.error(`Erro ao ler o arquivo JSON ${filePath}:`, readError);
+      return null;
     }
   }
-
-const file1Path = './files/broken_database_1.json';
-const file2Path = './files/broken_database_2.json';
-
-//readJson([file1Path, file2Path]);
 
 
 //corrigir nomes de marca e veículos
@@ -47,6 +33,7 @@ function correctStrings(jsonObj) {
   
     return correctJsonStr(jsonObj);
   }
+  
   
 
 //corrigir vendas
@@ -80,11 +67,23 @@ function exportJson(jsonObj, outputPath) {
       console.error('Erro ao exportar:', error);
     }
   }
-
-
-  const jsonObjects = readJson([file1Path, file2Path]);
-  const jsonCorrigidoNomes = jsonObjects.map(correctStrings);
-  const jsonCorrigidoVendas = jsonCorrigidoNomes.map(correctSales);
-  const outputFilePath = './files/corrected_database.json';
-  exportJson(jsonCorrigidoVendas, outputFilePath);
   
+  const file1Path = './files/broken_database_1.json';
+  const file2Path = './files/broken_database_2.json';
+  
+  const json1 = readJson(file1Path);
+  const json2 = readJson(file2Path);
+  
+  if (json1 && json2) {
+    const jsonCorrectedNames1 = correctStrings(json1);
+    const jsonCorrectedSales1 = correctSales(jsonCorrectedNames1);
+  
+    const jsonCorrectedNames2 = correctStrings(json2);
+    const jsonCorrectedSales2 = correctSales(jsonCorrectedNames2);
+  
+    const outputFilePath1 = './files/corrected_database_1.json';
+    const outputFilePath2 = './files/corrected_database_2.json';
+  
+    exportJson(jsonCorrectedSales1, outputFilePath1);
+    exportJson(jsonCorrectedSales2, outputFilePath2);
+  }
